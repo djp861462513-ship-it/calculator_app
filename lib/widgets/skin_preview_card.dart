@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../skins/skin_interface.dart';
-import '../skins/skin_manager.dart';
 
 class SkinPreviewCard extends StatelessWidget {
   final CalculatorSkin skin;

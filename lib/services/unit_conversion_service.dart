@@ -19,11 +19,6 @@ class UnitConversionService {
       '盎司 (oz)': 0.0283495,
       '克拉 (ct)': 0.0002,
     },
-    'temperature': {
-      '摄氏度 (°C)': 'celsius',
-      '华氏度 (°F)': 'fahrenheit',
-      '开尔文 (K)': 'kelvin',
-    },
     'area': {
       '平方米 (m²)': 1.0,
       '平方千米 (km²)': 1000000.0,
@@ -50,9 +45,17 @@ class UnitConversionService {
     },
   };
 
-  static List<String> get categories => conversionFactors.keys.toList();
+  static const List<String> _tempCategories = ['temperature'];
+
+  static List<String> get categories => [
+    ...conversionFactors.keys,
+    ..._tempCategories,
+  ];
 
   static List<String> getUnits(String category) {
+    if (category == 'temperature') {
+      return const ['摄氏度 (°C)', '华氏度 (°F)', '开尔文 (K)'];
+    }
     return conversionFactors[category]?.keys.toList() ?? [];
   }
 
@@ -65,7 +68,7 @@ class UnitConversionService {
     final fromFactor = factors[from];
     final toFactor = factors[to];
     if (fromFactor == null || toFactor == null) return null;
-    return value * (fromFactor as double) / (toFactor as double);
+    return value * fromFactor / toFactor;
   }
 
   static double? _convertTemperature(double value, String from, String to) {

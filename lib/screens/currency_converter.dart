@@ -102,7 +102,7 @@ class _CurrencyConverterState extends State<CurrencyConverter> {
       );
     }
 
-    final currencies = CurrencyService.supportedCurrencies;
+    const currencies = CurrencyService.supportedCurrencies;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
@@ -176,7 +176,7 @@ class _CurrencyConverterState extends State<CurrencyConverter> {
                   ),
                 ),
                 Text(
-                  '${_service!.getCurrencyName(_toCurrency)}',
+                  _service!.getCurrencyName(_toCurrency),
                   style: TextStyle(color: theme.colorScheme.onPrimary.withOpacity(0.8), fontSize: 14),
                 ),
               ],

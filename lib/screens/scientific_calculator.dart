@@ -181,7 +181,7 @@ class ScientificEvaluator {
     _expr = expr.replaceAll(' ', '');
     _pos = 0;
     final result = _parseExpression();
-    if (finalize && _pos < _expr.length) throw FormatException('Unexpected');
+    if (finalize && _pos < _expr.length) throw const FormatException('Unexpected');
     return result;
   }
 
@@ -196,9 +196,15 @@ class ScientificEvaluator {
   double _parseExpression() {
     double left = _parseTerm();
     while (_pos < _expr.length) {
-      if (_expr[_pos] == '+') { _pos++; left += _parseTerm(); }
-      else if (_expr[_pos] == '-') { _pos++; left -= _parseTerm(); }
-      else break;
+      if (_expr[_pos] == '+') {
+        _pos++;
+        left += _parseTerm();
+      } else if (_expr[_pos] == '-') {
+        _pos++;
+        left -= _parseTerm();
+      } else {
+        break;
+      }
     }
     return left;
   }
@@ -206,15 +212,20 @@ class ScientificEvaluator {
   double _parseTerm() {
     double left = _parsePower();
     while (_pos < _expr.length) {
-      if (_expr[_pos] == '*') { _pos++; left *= _parsePower(); }
-      else if (_expr[_pos] == '/') {
+if (_expr[_pos] == '*') {
+        _pos++;
+        left *= _parsePower();
+      } else if (_expr[_pos] == '/') {
         _pos++;
         final d = _parsePower();
-        if (d == 0) throw FormatException('/0');
+        if (d == 0) throw const FormatException('/0');
         left /= d;
+      } else if (_expr[_pos] == '%') {
+        _pos++;
+        left /= 100;
+      } else {
+        break;
       }
-      else if (_expr[_pos] == '%') { _pos++; left /= 100; }
-      else break;
     }
     return left;
   }
@@ -229,9 +240,15 @@ class ScientificEvaluator {
   }
 
   double _parseUnary() {
-    if (_pos >= _expr.length) throw FormatException('EOF');
-    if (_expr[_pos] == '-') { _pos++; return -_parseUnary(); }
-    if (_expr[_pos] == '+') { _pos++; return _parseUnary(); }
+    if (_pos >= _expr.length) throw const FormatException('EOF');
+    if (_expr[_pos] == '-') {
+      _pos++;
+      return -_parseUnary();
+    }
+    if (_expr[_pos] == '+') {
+      _pos++;
+      return _parseUnary();
+    }
     return _parsePostfix(_parsePrimary());
   }
 
@@ -244,24 +261,30 @@ class ScientificEvaluator {
   }
 
   double _parsePrimary() {
-    if (_pos >= _expr.length) throw FormatException('EOF');
+    if (_pos >= _expr.length) throw const FormatException('EOF');
     if (_expr[_pos] == '(') {
       _pos++;
       final r = _parseExpression();
-      if (_pos < _expr.length && _expr[_pos] == ')') _pos++;
+      if (_pos < _expr.length && _expr[_pos] == ')') {
+        _pos++;
+      }
       return r;
     }
-    for (final fn in ['sqrt', 'sin', 'cos', 'tan', 'log', 'ln']) {
+    for (final fn in const ['sqrt', 'sin', 'cos', 'tan', 'log', 'ln']) {
       if (_match('$fn(')) {
         final arg = _parseExpression();
-        if (_pos < _expr.length && _expr[_pos] == ')') _pos++;
+        if (_pos < _expr.length && _expr[_pos] == ')') {
+          _pos++;
+        }
         return _applyFn(fn, arg);
       }
     }
     if (_match('1/(')) {
       final arg = _parseExpression();
-      if (_pos < _expr.length && _expr[_pos] == ')') _pos++;
-      if (arg == 0) throw FormatException('/0');
+      if (_pos < _expr.length && _expr[_pos] == ')') {
+        _pos++;
+      }
+      if (arg == 0) throw const FormatException('/0');
       return 1 / arg;
     }
     return _parseNumber();
@@ -275,15 +298,17 @@ class ScientificEvaluator {
       case 'tan': return math.tan(isRad ? val : val * math.pi / 180);
       case 'log': return math.log(val) / math.ln10;
       case 'ln': return math.log(val);
-      default: throw FormatException('Unknown fn');
+      default: throw const FormatException('Unknown fn');
     }
   }
 
   double _factorial(double n) {
-    if (n < 0 || n != n.toInt()) throw FormatException('! invalid');
+    if (n < 0 || n != n.toInt()) throw const FormatException('! invalid');
     int x = n.toInt();
     double r = 1;
-    for (int i = 2; i <= x; i++) r *= i;
+    for (int i = 2; i <= x; i++) {
+      r *= i;
+    }
    return r;
   }
 
@@ -293,7 +318,7 @@ class ScientificEvaluator {
         (_expr[_pos] == '.' || (_expr.codeUnitAt(_pos) >= 48 && _expr.codeUnitAt(_pos) <= 57))) {
       _pos++;
     }
-    if (start == _pos) throw FormatException('Expected number');
+    if (start == _pos) throw const FormatException('Expected number');
     return double.parse(_expr.substring(start, _pos));
   }
 }

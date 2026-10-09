@@ -137,7 +137,7 @@ class ExpressionEvaluator {
     _pos = 0;
     final result = _parseExpression();
     if (finalize && _pos < _expr.length) {
-      throw FormatException('Unexpected character');
+      throw const FormatException('Unexpected character');
     }
     return result;
   }
@@ -167,7 +167,7 @@ class ExpressionEvaluator {
       } else if (_expr[_pos] == '/') {
         _pos++;
         final divisor = _parseFactor();
-        if (divisor == 0) throw FormatException('Division by zero');
+        if (divisor == 0) throw const FormatException('Division by zero');
         left /= divisor;
       } else if (_expr[_pos] == '%') {
         _pos++;
@@ -180,14 +180,14 @@ class ExpressionEvaluator {
   }
 
   double _parseFactor() {
-    if (_pos >= _expr.length) throw FormatException('Unexpected end');
+    if (_pos >= _expr.length) throw const FormatException('Unexpected end');
 
     if (_expr[_pos] == '(') {
       _pos++;
       final result = _parseExpression();
       if (_pos >= _expr.length || _expr[_pos] != ')') {
         if (_pos >= _expr.length) return result;
-        throw FormatException('Missing )');
+        throw const FormatException('Missing )');
       }
       _pos++;
       return result;
@@ -207,7 +207,7 @@ class ExpressionEvaluator {
         (_expr[_pos] == '.' || (_expr.codeUnitAt(_pos) >= 48 && _expr.codeUnitAt(_pos) <= 57))) {
       _pos++;
     }
-    if (start == _pos) throw FormatException('Expected number');
+    if (start == _pos) throw const FormatException('Expected number');
     return double.parse(_expr.substring(start, _pos));
   }
 }
