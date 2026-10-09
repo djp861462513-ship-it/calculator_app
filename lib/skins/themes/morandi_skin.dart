@@ -42,6 +42,7 @@ class MorandiSkin implements CalculatorSkin {
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(5);
   @override BoxBorder? get buttonBorder => null;
 
+  @override bool get hasGlowEffect => false;
   @override bool get hasGradientButtons => true;
   @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.morandiShimmer;
 

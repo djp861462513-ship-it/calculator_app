@@ -46,13 +46,13 @@ class RainbowSkin implements CalculatorSkin {
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
-  @override BoxDecoration? get displayDecoration => BoxDecoration(
-        color: const Color(0xFFFFF8E7),
-        border: Border.all(color: const Color(0x44FF0080), width: 1.5),
-        borderRadius: BorderRadius.circular(20),
+  @override BoxDecoration? get displayDecoration => const BoxDecoration(
+        color: Color(0xFFFFF8E7),
+        border: Border.fromBorderSide(BorderSide(color: Color(0x44FF0080), width: 1.5)),
+        borderRadius: BorderRadius.all(Radius.circular(20)),
         boxShadow: [
           BoxShadow(
-            color: const Color(0x22FF0080),
+            color: Color(0x22FF0080),
             blurRadius: 12,
             spreadRadius: 2,
           ),

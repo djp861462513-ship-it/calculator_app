@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../skins/skin_manager.dart';
-import '../skins/skin_interface.dart';
 
 enum ButtonType { number, operator, function, equals }
 

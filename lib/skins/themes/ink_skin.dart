@@ -50,6 +50,7 @@ class InkSkin implements CalculatorSkin {
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(5);
   @override BoxBorder? get buttonBorder => Border.all(color: const Color(0x22000000), width: 1);
 
+  @override bool get hasGlowEffect => false;
   @override bool get hasGradientButtons => true;
   @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.inkWash;
 

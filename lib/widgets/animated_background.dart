@@ -147,7 +147,7 @@ class _BackgroundPainter extends CustomPainter {
 
     final stars = _getStars(60, size);
     for (final s in stars) {
-      final twinkle = 0.4 + 0.6 * math.abs(math.sin(progress * 4 * math.pi + s.phase));
+      final twinkle = 0.4 + 0.6 * (math.sin(progress * 4 * math.pi + s.phase)).abs();
       canvas.drawCircle(
         Offset(s.x * w, s.y * h),
         s.size,
@@ -175,7 +175,7 @@ class _BackgroundPainter extends CustomPainter {
 
     for (final s in stars) {
       final drift = (progress + s.phase * 0.1) % 1.0;
-      final twinkle = 0.3 + 0.7 * math.abs(math.sin(progress * 3 * math.pi + s.phase * 2 * math.pi));
+      final twinkle = 0.3 + 0.7 * (math.sin(progress * 3 * math.pi + s.phase * 2 * math.pi)).abs();
       final colorVal = (s.phase * 1000).toInt() % colors.length;
       final color = colors[colorVal.clamp(0, colors.length - 1)];
       canvas.drawCircle(
@@ -349,7 +349,7 @@ class _BackgroundPainter extends CustomPainter {
       final drift = (progress * p.speed + p.phase) % 1.0;
       final y = ((p.y - drift) % 1.0 + 1) % 1.0;
       final color = colors[(p.phase * 1000).toInt() % colors.length];
-      final opacity = (0.3 + 0.7 * math.abs(math.sin(progress * 3 * math.pi + p.phase * 2 * math.pi))) * config.intensity;
+      final opacity = (0.3 + 0.7 * (math.sin(progress * 3 * math.pi + p.phase * 2 * math.pi)).abs()) * config.intensity;
 
       canvas.drawCircle(
         Offset(p.x * w, y * h),
@@ -370,7 +370,6 @@ class _BackgroundPainter extends CustomPainter {
 
     final angle = progress * 2 * math.pi;
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.longestSide;
 
     final paint = Paint()
       ..shader = SweepGradient(

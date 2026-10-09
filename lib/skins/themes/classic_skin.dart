@@ -42,6 +42,8 @@ class ClassicSkin implements CalculatorSkin {
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(4);
   @override BoxBorder? get buttonBorder => null;
 
+  @override bool get hasGlowEffect => false;
+  @override bool get hasGradientButtons => false;
   @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.none;
 
   @override Map<String, dynamic> toJson() => {'id': id, 'name': name, 'description': description, 'type': 'classic'};

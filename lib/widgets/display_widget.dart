@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../skins/skin_manager.dart';
-import '../skins/skin_interface.dart';
 
 class CalculatorDisplay extends StatelessWidget {
   final String expression;
@@ -19,7 +18,6 @@ class CalculatorDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final skinManager = context.watch<SkinManager>();
     final skin = skinManager.currentSkin;
-    final theme = Theme.of(context);
 
     final decoration = skin.displayDecoration ??
         BoxDecoration(
