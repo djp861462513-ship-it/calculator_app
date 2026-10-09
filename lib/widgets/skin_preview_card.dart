@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../skins/skin_interface.dart';
+import '../skins/skin_animation_config.dart';
 
 class SkinPreviewCard extends StatelessWidget {
   final CalculatorSkin skin;
@@ -15,6 +16,7 @@ class SkinPreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasAnim = skin.animationConfig.type != AnimationType.none;
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -32,8 +34,8 @@ class SkinPreviewCard extends StatelessWidget {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: skin.primaryColor.withOpacity(0.3),
-                    blurRadius: 12,
+                    color: skin.primaryColor.withOpacity(0.4),
+                    blurRadius: 16,
                     spreadRadius: 2,
                   )
                 ]
@@ -50,7 +52,14 @@ class SkinPreviewCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(skin.icon, color: skin.primaryColor, size: 28),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: skin.primaryColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(skin.icon, color: skin.primaryColor, size: 24),
+                ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -61,7 +70,7 @@ class SkinPreviewCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: skin.appBarFg.withOpacity(0.9),
+                          color: skin.appBarFg.withOpacity(0.95),
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -76,10 +85,56 @@ class SkinPreviewCard extends StatelessWidget {
                   ),
                 ),
                 if (isSelected)
-                  Icon(Icons.check_circle, color: skin.primaryColor, size: 28),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: skin.primaryColor,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.check, color: Colors.white, size: 18),
+                  ),
               ],
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: 12),
+            if (hasAnim) ...[
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      skin.primaryColor.withOpacity(0.2),
+                      skin.primaryColor.withOpacity(0.05),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: skin.primaryColor.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.play_circle_filled,
+                        color: skin.primaryColor, size: 14),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        skin.animationLabel,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: skin.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 12),
+            ] else
+              const SizedBox(height: 6),
             Row(
               children: [
                 _buildSwatch(skin.numberButtonBg, skin.numberButtonFg, '123'),
@@ -98,15 +153,27 @@ class SkinPreviewCard extends StatelessWidget {
   }
 
   Widget _buildSwatch(Color bg, Color fg, String label) {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(8),
+    return Expanded(
+      child: Container(
+        height: 32,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              bg,
+              Color.alphaBlend(
+                fg.withOpacity(0.08),
+                bg,
+              ),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        alignment: Alignment.center,
+        child: Text(label,
+            style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.bold)),
       ),
-      alignment: Alignment.center,
-      child: Text(label, style: TextStyle(color: fg, fontSize: 12, fontWeight: FontWeight.bold)),
     );
   }
 }

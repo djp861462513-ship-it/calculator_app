@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../skins/skin_manager.dart';
+import '../widgets/animated_background.dart';
 import 'basic_calculator.dart';
 import 'scientific_calculator.dart';
 import 'currency_converter.dart';
@@ -39,7 +40,7 @@ class _MainScreenState extends State<MainScreen> {
     final titles = ['计算器', '汇率换算', '单位换算', '皮肤'];
 
     return Scaffold(
-      backgroundColor: skin.backgroundColor,
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
         backgroundColor: skin.appBarBg,
         foregroundColor: skin.appBarFg,
@@ -57,9 +58,20 @@ class _MainScreenState extends State<MainScreen> {
             ),
         ],
       ),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: pages,
+      extendBodyBehindAppBar: false,
+      body: AnimatedBackground(
+        config: skin.animationConfig,
+        baseColor: skin.backgroundColor,
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: skin.backgroundGradient,
+            color: skin.backgroundGradient == null ? skin.backgroundColor : null,
+          ),
+          child: IndexedStack(
+            index: _currentIndex,
+            children: pages,
+          ),
+        ),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(

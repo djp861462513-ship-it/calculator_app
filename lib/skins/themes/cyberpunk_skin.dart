@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../skin_interface.dart';
+import '../skin_animation_config.dart';
 
 class CyberpunkSkin implements CalculatorSkin {
   const CyberpunkSkin();
@@ -7,6 +8,7 @@ class CyberpunkSkin implements CalculatorSkin {
   @override String get id => 'cyberpunk';
   @override String get name => '赛博朋克';
   @override String get description => '深色霓虹灯配色，科技感十足';
+  @override String get animationLabel => '霓虹脉冲';
   @override IconData get icon => Icons.nightlight_round;
   @override Brightness get brightness => Brightness.dark;
 
@@ -47,6 +49,10 @@ class CyberpunkSkin implements CalculatorSkin {
   @override double get buttonRadius => 8;
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(3);
   @override BoxBorder? get buttonBorder => Border.all(color: const Color(0x3300F5FF), width: 1);
+
+  @override bool get hasGlowEffect => true;
+  @override bool get hasGradientButtons => true;
+  @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.cyberpunkGlow;
 
   @override Map<String, dynamic> toJson() => {'id': id, 'name': name, 'description': description, 'type': 'cyberpunk'};
 }

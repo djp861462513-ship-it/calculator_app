@@ -6,6 +6,12 @@ import 'themes/cyberpunk_skin.dart';
 import 'themes/morandi_skin.dart';
 import 'themes/nature_skin.dart';
 import 'themes/classic_skin.dart';
+import 'themes/aurora_skin.dart';
+import 'themes/galaxy_skin.dart';
+import 'themes/lava_skin.dart';
+import 'themes/ink_skin.dart';
+import 'themes/rainbow_skin.dart';
+import 'themes/black_gold_skin.dart';
 
 class SkinManager extends ChangeNotifier {
   final List<CalculatorSkin> _skins = [];
@@ -21,6 +27,12 @@ class SkinManager extends ChangeNotifier {
     _skins.add(const MorandiSkin());
     _skins.add(const NatureSkin());
     _skins.add(const ClassicSkin());
+    _skins.add(const AuroraSkin());
+    _skins.add(const GalaxySkin());
+    _skins.add(const LavaSkin());
+    _skins.add(const InkSkin());
+    _skins.add(const RainbowSkin());
+    _skins.add(const BlackGoldSkin());
   }
 
   void registerSkin(CalculatorSkin skin) {

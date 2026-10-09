@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../skin_interface.dart';
+import '../skin_animation_config.dart';
 
 class DopamineSkin implements CalculatorSkin {
   const DopamineSkin();
@@ -7,6 +8,7 @@ class DopamineSkin implements CalculatorSkin {
   @override String get id => 'dopamine';
   @override String get name => '多巴胺';
   @override String get description => '高饱和亮色系，充满活力与快乐';
+  @override String get animationLabel => '微光闪烁';
   @override IconData get icon => Icons.emoji_emotions;
   @override Brightness get brightness => Brightness.light;
 
@@ -43,6 +45,10 @@ class DopamineSkin implements CalculatorSkin {
   @override double get buttonRadius => 16;
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(4);
   @override BoxBorder? get buttonBorder => Border.all(color: const Color(0x33FF6B6B), width: 1);
+
+  @override bool get hasGlowEffect => true;
+  @override bool get hasGradientButtons => true;
+  @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.dopamineShimmer;
 
   @override Map<String, dynamic> toJson() => {'id': id, 'name': name, 'description': description, 'type': 'dopamine'};
 }

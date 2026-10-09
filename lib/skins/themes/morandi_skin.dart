@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../skin_interface.dart';
+import '../skin_animation_config.dart';
 
 class MorandiSkin implements CalculatorSkin {
   const MorandiSkin();
@@ -7,6 +8,7 @@ class MorandiSkin implements CalculatorSkin {
   @override String get id => 'morandi';
   @override String get name => '莫兰迪';
   @override String get description => '低饱和度柔和配色，高级舒适';
+  @override String get animationLabel => '柔光微漾';
   @override IconData get icon => Icons.palette;
   @override Brightness get brightness => Brightness.light;
 
@@ -39,6 +41,9 @@ class MorandiSkin implements CalculatorSkin {
   @override double get buttonRadius => 14;
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(5);
   @override BoxBorder? get buttonBorder => null;
+
+  @override bool get hasGradientButtons => true;
+  @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.morandiShimmer;
 
   @override Map<String, dynamic> toJson() => {'id': id, 'name': name, 'description': description, 'type': 'morandi'};
 }

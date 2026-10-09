@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'skin_animation_config.dart';
 
 abstract class CalculatorSkin {
   String get id;
   String get name;
   String get description;
+  String get animationLabel;
   IconData get icon;
 
   Brightness get brightness;
@@ -37,6 +39,10 @@ abstract class CalculatorSkin {
   double get buttonRadius;
   EdgeInsets get buttonMargin;
   BoxBorder? get buttonBorder;
+
+  bool get hasGlowEffect => false;
+  bool get hasGradientButtons => false;
+  SkinAnimationConfig get animationConfig => SkinAnimationConfig.none;
 
   Map<String, dynamic> toJson();
 }

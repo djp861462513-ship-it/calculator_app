@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../skin_interface.dart';
+import '../skin_animation_config.dart';
 
 class NatureSkin implements CalculatorSkin {
   const NatureSkin();
@@ -7,6 +8,7 @@ class NatureSkin implements CalculatorSkin {
   @override String get id => 'nature';
   @override String get name => '森系自然';
   @override String get description => '绿色大地色系，清新宁静';
+  @override String get animationLabel => '浮叶飘动';
   @override IconData get icon => Icons.forest;
   @override Brightness get brightness => Brightness.light;
 
@@ -43,6 +45,9 @@ class NatureSkin implements CalculatorSkin {
   @override double get buttonRadius => 20;
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(5);
   @override BoxBorder? get buttonBorder => null;
+
+  @override bool get hasGradientButtons => true;
+  @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.natureFloat;
 
   @override Map<String, dynamic> toJson() => {'id': id, 'name': name, 'description': description, 'type': 'nature'};
 }

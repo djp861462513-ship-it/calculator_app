@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../skin_interface.dart';
+import '../skin_animation_config.dart';
 
 class ClassicSkin implements CalculatorSkin {
   const ClassicSkin();
@@ -7,6 +8,7 @@ class ClassicSkin implements CalculatorSkin {
   @override String get id => 'classic';
   @override String get name => '经典商务';
   @override String get description => '黑白灰简约，专业大气';
+  @override String get animationLabel => '无';
   @override IconData get icon => Icons.business;
   @override Brightness get brightness => Brightness.dark;
 
@@ -39,6 +41,8 @@ class ClassicSkin implements CalculatorSkin {
   @override double get buttonRadius => 10;
   @override EdgeInsets get buttonMargin => const EdgeInsets.all(4);
   @override BoxBorder? get buttonBorder => null;
+
+  @override SkinAnimationConfig get animationConfig => SkinAnimationConfig.none;
 
   @override Map<String, dynamic> toJson() => {'id': id, 'name': name, 'description': description, 'type': 'classic'};
 }
