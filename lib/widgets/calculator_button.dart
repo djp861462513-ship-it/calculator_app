@@ -332,7 +332,7 @@ class _DiamondBorderPainter extends CustomPainter {
       totalLen += m.length;
     }
 
-    final sparkCount = 5;
+    const sparkCount = 5;
     for (int i = 0; i < sparkCount; i++) {
       final t = (progress + i / sparkCount) % 1.0;
       final pos = t * totalLen;

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../effects/particle.dart';
 import '../effects/emitters.dart';
 
 class FireworkOverlay extends StatefulWidget {
@@ -22,7 +21,6 @@ class FireworkOverlayState extends State<FireworkOverlay>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   FireworkEmitter? _emitter;
-  Size _size = Size.zero;
 
   @override
   void initState() {
@@ -40,7 +38,6 @@ class FireworkOverlayState extends State<FireworkOverlay>
   }
 
   void triggerFirework(Offset position) {
-    _size = (context.findRenderObject() as RenderBox).size;
     _emitter = FireworkEmitter(
       x: position.dx,
       y: position.dy,

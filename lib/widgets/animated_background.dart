@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../skins/skin_animation_config.dart';
-import '../effects/particle.dart';
 import '../effects/emitters.dart';
 
 class AnimatedBackground extends StatefulWidget {
@@ -24,7 +23,6 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   Emitter? _emitter;
-  Paint _paint = Paint();
 
   @override
   void initState() {

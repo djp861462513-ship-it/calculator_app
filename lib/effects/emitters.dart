@@ -71,7 +71,7 @@ class FireworkEmitter extends Emitter {
       nextBurst = burstInterval * (0.6 + rng.nextDouble() * 0.8);
       x = size.width * (0.15 + rng.nextDouble() * 0.7);
       y = size.height * (0.15 + rng.nextDouble() * 0.4);
-      _burst();
+      burst();
     }
   }
 
@@ -316,7 +316,7 @@ class StreamEmitter extends Emitter {
 class ConstellationEmitter extends Emitter {
   final List<Color> colors;
   final math.Random rng = math.Random();
-  late List<_Node> nodes;
+  late List<ConstellationNode> nodes;
 
   ConstellationEmitter({
     required List<Color> colors,
@@ -325,7 +325,7 @@ class ConstellationEmitter extends Emitter {
         super(x: 0, y: 0, rate: 0, maxParticles: maxParticles);
 
   void init(Size size) {
-    nodes = List.generate(40, (_) => _Node(
+    nodes = List.generate(40, (_) => ConstellationNode(
       x: rng.nextDouble() * size.width,
       y: rng.nextDouble() * size.height,
       vx: (rng.nextDouble() - 0.5) * 8,
@@ -348,6 +348,7 @@ class ConstellationEmitter extends Emitter {
     }
   }
 
+  @override
   void draw(Canvas canvas, Paint paint, {BlendMode blendMode = BlendMode.srcOver}) {
     if (nodes.isEmpty) return;
     paint.blendMode = blendMode;
@@ -384,10 +385,10 @@ class ConstellationEmitter extends Emitter {
   int get particleCount => nodes.length;
 }
 
-class _Node {
+class ConstellationNode {
   double x, y, vx, vy, size, twinkle;
   Color color;
-  _Node({
+  ConstellationNode({
     required this.x,
     required this.y,
     required this.vx,
