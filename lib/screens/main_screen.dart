@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../skins/skin_manager.dart';
 import '../widgets/animated_background.dart';
+import '../widgets/firework_overlay.dart';
 import 'basic_calculator.dart';
 import 'scientific_calculator.dart';
 import 'currency_converter.dart';
@@ -18,9 +19,14 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   bool _isScientific = false;
+  final GlobalKey<FireworkOverlayState> _fireworkKey = GlobalKey();
 
   void _toggleCalculatorMode() {
     setState(() => _isScientific = !_isScientific);
+  }
+
+  void _triggerFirework(Offset position) {
+    _fireworkKey.currentState?.triggerFirework(position);
   }
 
   @override
@@ -31,7 +37,7 @@ class _MainScreenState extends State<MainScreen> {
     final pages = <Widget>[
       _isScientific
           ? ScientificCalculator(onSwitchToBasic: _toggleCalculatorMode)
-          : BasicCalculator(onSwitchToScientific: _toggleCalculatorMode),
+          : BasicCalculator(onSwitchToScientific: _toggleCalculatorMode, onFirework: _triggerFirework),
       const CurrencyConverter(),
       const UnitConverter(),
       const SkinPicker(),
@@ -62,14 +68,20 @@ class _MainScreenState extends State<MainScreen> {
       body: AnimatedBackground(
         config: skin.animationConfig,
         baseColor: skin.backgroundColor,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: skin.backgroundGradient,
-            color: skin.backgroundGradient == null ? skin.backgroundColor : null,
-          ),
-          child: IndexedStack(
-            index: _currentIndex,
-            children: pages,
+        child: FireworkOverlay(
+          key: _fireworkKey,
+          colors: skin.animationConfig.particleColors.isNotEmpty
+              ? skin.animationConfig.particleColors
+              : [skin.primaryColor],
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: skin.backgroundGradient,
+              color: skin.backgroundGradient == null ? skin.backgroundColor : null,
+            ),
+            child: IndexedStack(
+              index: _currentIndex,
+              children: pages,
+            ),
           ),
         ),
       ),

@@ -12,6 +12,12 @@ import 'themes/lava_skin.dart';
 import 'themes/ink_skin.dart';
 import 'themes/rainbow_skin.dart';
 import 'themes/black_gold_skin.dart';
+import 'themes/firework_skin.dart';
+import 'themes/diamond_skin.dart';
+import 'themes/sakura_skin.dart';
+import 'themes/ocean_skin.dart';
+import 'themes/neon_skin.dart';
+import 'themes/stardust_skin.dart';
 
 class SkinManager extends ChangeNotifier {
   final List<CalculatorSkin> _skins = [];
@@ -33,6 +39,12 @@ class SkinManager extends ChangeNotifier {
     _skins.add(const InkSkin());
     _skins.add(const RainbowSkin());
     _skins.add(const BlackGoldSkin());
+    _skins.add(const FireworkSkin());
+    _skins.add(const DiamondSkin());
+    _skins.add(const SakuraSkin());
+    _skins.add(const OceanSkin());
+    _skins.add(const NeonSkin());
+    _skins.add(const StardustSkin());
   }
 
   void registerSkin(CalculatorSkin skin) {

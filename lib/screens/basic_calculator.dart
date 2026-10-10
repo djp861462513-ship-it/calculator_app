@@ -4,8 +4,9 @@ import '../widgets/display_widget.dart';
 
 class BasicCalculator extends StatefulWidget {
   final VoidCallback? onSwitchToScientific;
+  final void Function(Offset)? onFirework;
 
-  const BasicCalculator({super.key, this.onSwitchToScientific});
+  const BasicCalculator({super.key, this.onSwitchToScientific, this.onFirework});
 
   @override
   State<BasicCalculator> createState() => _BasicCalculatorState();
@@ -15,6 +16,7 @@ class _BasicCalculatorState extends State<BasicCalculator> {
   String _expression = '';
   String _result = '0';
   bool _shouldReset = false;
+  final GlobalKey _equalsKey = GlobalKey();
 
   void _onKeyTap(String key) {
     setState(() {
@@ -49,6 +51,14 @@ class _BasicCalculatorState extends State<BasicCalculator> {
       _evaluate(finalize: true);
       _shouldReset = true;
     });
+    if (widget.onFirework != null) {
+      final ctx = _equalsKey.currentContext;
+      if (ctx != null) {
+        final box = ctx.findRenderObject() as RenderBox;
+        final pos = box.localToGlobal(Offset(box.size.width / 2, box.size.height / 2));
+        widget.onFirework!(pos);
+      }
+    }
   }
 
   void _evaluate({bool finalize = false}) {
@@ -116,7 +126,7 @@ class _BasicCalculatorState extends State<BasicCalculator> {
                   children: [
                     CalcButton(label: '0', type: ButtonType.number, onTap: () => _onKeyTap('0'), flex: 2),
                     CalcButton(label: '.', type: ButtonType.number, onTap: () => _onKeyTap('.')),
-                    CalcButton(label: '=', type: ButtonType.equals, onTap: _onEquals),
+                    CalcButton(label: '=', type: ButtonType.equals, onTap: _onEquals, buttonKey: _equalsKey),
                   ],
                 ),
               ],

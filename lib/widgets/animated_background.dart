@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../skins/skin_animation_config.dart';
+import '../effects/particle.dart';
+import '../effects/emitters.dart';
 
 class AnimatedBackground extends StatefulWidget {
   final SkinAnimationConfig config;
@@ -21,6 +23,8 @@ class AnimatedBackground extends StatefulWidget {
 class _AnimatedBackgroundState extends State<AnimatedBackground>
     with TickerProviderStateMixin {
   late AnimationController _controller;
+  Emitter? _emitter;
+  Paint _paint = Paint();
 
   @override
   void initState() {
@@ -29,6 +33,61 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
       duration: widget.config.duration,
       vsync: this,
     )..repeat();
+    _setupEmitter();
+  }
+
+  void _setupEmitter() {
+    switch (widget.config.type) {
+      case AnimationType.fireworks:
+        _emitter = FireworkEmitter(
+          x: 200, y: 300,
+          colors: widget.config.particleColors,
+          burstInterval: 1.8,
+          maxParticles: 600,
+        );
+        break;
+      case AnimationType.cherryBlossom:
+        _emitter = CherryBlossomEmitter(
+          colors: widget.config.particleColors,
+          maxParticles: 100,
+        );
+        break;
+      case AnimationType.oceanBubbles:
+        _emitter = BubbleEmitter(
+          colors: widget.config.particleColors,
+          maxParticles: 80,
+        );
+        break;
+      case AnimationType.diamondSparkle:
+        _emitter = DiamondSparkleEmitter(
+          colors: widget.config.particleColors,
+          maxParticles: 60,
+        );
+        break;
+      case AnimationType.constellation:
+        _emitter = ConstellationEmitter(
+          colors: widget.config.particleColors,
+          maxParticles: 40,
+        );
+        break;
+      case AnimationType.neonStream:
+        _emitter = StreamEmitter(
+          colors: widget.config.particleColors,
+          maxParticles: 200,
+        );
+        break;
+      default:
+        _emitter = null;
+    }
+  }
+
+  @override
+  void didUpdateWidget(AnimatedBackground old) {
+    super.didUpdateWidget(old);
+    if (old.config.type != widget.config.type) {
+      _controller.duration = widget.config.duration;
+      _setupEmitter();
+    }
   }
 
   @override
@@ -43,22 +102,31 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
       return widget.child;
     }
 
+    final isParticle = _emitter != null;
+
     return Stack(
       children: [
         Positioned.fill(
-          child: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              return CustomPaint(
-                painter: _BackgroundPainter(
+          child: isParticle
+              ? _ParticleView(
+                  controller: _controller,
+                  emitter: _emitter!,
                   config: widget.config,
-                  progress: _controller.value,
                   baseColor: widget.baseColor,
+                )
+              : AnimatedBuilder(
+                  animation: _controller,
+                  builder: (context, _) {
+                    return CustomPaint(
+                      painter: _AmbientPainter(
+                        config: widget.config,
+                        progress: _controller.value,
+                        baseColor: widget.baseColor,
+                      ),
+                      child: Container(),
+                    );
+                  },
                 ),
-                child: Container(),
-              );
-            },
-          ),
         ),
         widget.child,
       ],
@@ -66,12 +134,78 @@ class _AnimatedBackgroundState extends State<AnimatedBackground>
   }
 }
 
-class _BackgroundPainter extends CustomPainter {
+class _ParticleView extends StatelessWidget {
+  final AnimationController controller;
+  final Emitter emitter;
+  final SkinAnimationConfig config;
+  final Color baseColor;
+
+  const _ParticleView({
+    required this.controller,
+    required this.emitter,
+    required this.config,
+    required this.baseColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, _) {
+        return CustomPaint(
+          painter: _ParticlePainter(
+            emitter: emitter,
+            progress: controller.value,
+            config: config,
+            baseColor: baseColor,
+          ),
+          child: Container(),
+        );
+      },
+    );
+  }
+}
+
+class _ParticlePainter extends CustomPainter {
+  final Emitter emitter;
+  final double progress;
+  final SkinAnimationConfig config;
+  final Color baseColor;
+  final Paint _paint = Paint();
+
+  _ParticlePainter({
+    required this.emitter,
+    required this.progress,
+    required this.config,
+    required this.baseColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (emitter is ConstellationEmitter) {
+      (emitter as ConstellationEmitter).update(1 / 60, size);
+      (emitter as ConstellationEmitter).draw(canvas, _paint, blendMode: config.blendMode);
+      return;
+    }
+
+    if (emitter is DiamondSparkleEmitter) {
+      (emitter as DiamondSparkleEmitter).update(1 / 60, size);
+    }
+
+    emitter.update(1 / 60, size);
+    emitter.draw(canvas, _paint, blendMode: config.blendMode);
+  }
+
+  @override
+  bool shouldRepaint(covariant _ParticlePainter old) => true;
+}
+
+class _AmbientPainter extends CustomPainter {
   final SkinAnimationConfig config;
   final double progress;
   final Color baseColor;
 
-  _BackgroundPainter({
+  _AmbientPainter({
     required this.config,
     required this.progress,
     required this.baseColor,
@@ -104,7 +238,7 @@ class _BackgroundPainter extends CustomPainter {
       case AnimationType.floatingOrbs:
         _drawFloatingOrbs(canvas, size);
         break;
-      case AnimationType.none:
+      default:
         break;
     }
   }
@@ -123,10 +257,8 @@ class _BackgroundPainter extends CustomPainter {
 
       final path = Path();
       path.moveTo(0, yOffset);
-
       for (double x = 0; x <= w; x += 8) {
-        final wave =
-            amplitude * math.sin(x / w * 3 * math.pi + phase) + centerOffset;
+        final wave = amplitude * math.sin(x / w * 3 * math.pi + phase) + centerOffset;
         path.lineTo(x, yOffset + wave);
       }
       path.lineTo(w, yOffset + 200);
@@ -141,7 +273,6 @@ class _BackgroundPainter extends CustomPainter {
           colors[i].withOpacity(0.0),
         ],
       ).createShader(Rect.fromLTWH(0, yOffset - 100, w, 300));
-
       canvas.drawPath(path, paint);
     }
 
@@ -183,7 +314,6 @@ class _BackgroundPainter extends CustomPainter {
         s.size,
         Paint()..color = color.withOpacity(twinkle * config.intensity),
       );
-
       if (s.size > 1.5) {
         canvas.drawCircle(
           Offset(s.x * w, ((s.y + drift * 0.05) % 1.0) * h),
@@ -198,7 +328,6 @@ class _BackgroundPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = config.particleColors;
-
     final pulse = 0.5 + 0.5 * math.sin(progress * 2 * math.pi);
 
     for (int i = 0; i < colors.length; i++) {
@@ -210,12 +339,10 @@ class _BackgroundPainter extends CustomPainter {
         Offset(centerX, centerY),
         radius,
         Paint()
-          ..shader = RadialGradient(
-            colors: [
-              colors[i].withOpacity(0.35 * config.intensity * (0.5 + 0.5 * pulse)),
-              colors[i].withOpacity(0.0),
-            ],
-          ).createShader(Rect.fromCircle(center: Offset(centerX, centerY), radius: radius)),
+          ..shader = RadialGradient(colors: [
+            colors[i].withOpacity(0.35 * config.intensity * (0.5 + 0.5 * pulse)),
+            colors[i].withOpacity(0.0),
+          ]).createShader(Rect.fromCircle(center: Offset(centerX, centerY), radius: radius)),
       );
     }
 
@@ -225,18 +352,9 @@ class _BackgroundPainter extends CustomPainter {
       final y = ((e.y - drift) % 1.0 + 1) % 1.0;
       final x = e.x + math.sin(progress * 2 * math.pi + e.phase * 2 * math.pi) * 0.02;
       final emberColor = colors[(e.phase * 1000).toInt() % colors.length];
-      final emberSize = e.size * (0.5 + 0.5 * math.sin(progress * 4 * math.pi + e.phase * 2 * math.pi));
-
-      canvas.drawCircle(
-        Offset(x * w, y * h),
-        emberSize * 2,
-        Paint()..color = emberColor.withOpacity(0.3 * config.intensity),
-      );
-      canvas.drawCircle(
-        Offset(x * w, y * h),
-        emberSize,
-        Paint()..color = emberColor.withOpacity(0.6 * config.intensity),
-      );
+      final emberSize = e.size * (0.5 + 0.5 * (math.sin(progress * 4 * math.pi + e.phase * 2 * math.pi)).abs());
+      canvas.drawCircle(Offset(x * w, y * h), emberSize * 2, Paint()..color = emberColor.withOpacity(0.3 * config.intensity));
+      canvas.drawCircle(Offset(x * w, y * h), emberSize, Paint()..color = emberColor.withOpacity(0.6 * config.intensity));
     }
   }
 
@@ -244,33 +362,22 @@ class _BackgroundPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = config.particleColors;
-
     for (int layer = 0; layer < 3; layer++) {
       final layerProgress = (progress + layer * 0.33) % 1.0;
       final path = Path();
-
       final baseY = h * (0.2 + 0.25 * layer);
       final amplitude = 40.0 + layer * 20;
       final wavelength = 1.5 + layer * 0.5;
-
       path.moveTo(0, baseY);
       for (double x = 0; x <= w; x += 5) {
-        final wave = amplitude *
-            math.sin(x / w * wavelength * math.pi + layerProgress * 2 * math.pi) *
-            math.cos(layerProgress * math.pi + layer);
+        final wave = amplitude * math.sin(x / w * wavelength * math.pi + layerProgress * 2 * math.pi) * math.cos(layerProgress * math.pi + layer);
         path.lineTo(x, baseY + wave);
       }
       path.lineTo(w, baseY + 60);
       path.lineTo(0, baseY + 60);
       path.close();
-
       final color = colors[layer % colors.length];
-      canvas.drawPath(
-        path,
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.fill,
-      );
+      canvas.drawPath(path, Paint()..color = color..style = PaintingStyle.fill);
     }
   }
 
@@ -278,14 +385,12 @@ class _BackgroundPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = config.particleColors;
-
     final offset = progress * colors.length;
     final shiftedColors = <Color>[];
     for (int i = 0; i < colors.length; i++) {
       final idx = (i + offset) % colors.length;
       shiftedColors.add(colors[idx.toInt() % colors.length]);
     }
-
     final paint = Paint()
       ..shader = LinearGradient(
         begin: Alignment(-1 + progress * 2, -1),
@@ -298,18 +403,14 @@ class _BackgroundPainter extends CustomPainter {
       final x = ((progress * 0.5 + i * 0.125) % 1.0) * w;
       final y = h * 0.5 + math.sin(progress * 2 * math.pi + i) * h * 0.3;
       final color = colors[(i + offset.toInt()) % colors.length];
-      final radius = 20 + 15 * math.sin(progress * 4 * math.pi + i);
-
+      final radius = 20 + 15 * (math.sin(progress * 4 * math.pi + i)).abs();
       canvas.drawCircle(
-        Offset(x, y),
-        radius,
+        Offset(x, y), radius,
         Paint()
-          ..shader = RadialGradient(
-            colors: [
-              color.withOpacity(0.2 * config.intensity),
-              color.withOpacity(0.0),
-            ],
-          ).createShader(Rect.fromCircle(center: Offset(x, y), radius: radius)),
+          ..shader = RadialGradient(colors: [
+            color.withOpacity(0.2 * config.intensity),
+            color.withOpacity(0.0),
+          ]).createShader(Rect.fromCircle(center: Offset(x, y), radius: radius)),
       );
     }
   }
@@ -318,7 +419,6 @@ class _BackgroundPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = config.particleColors;
-
     for (int i = 0; i < colors.length; i++) {
       final waveProgress = (progress + i / colors.length) % 1.0;
       final x = waveProgress * w * 1.5 - w * 0.25;
@@ -328,7 +428,6 @@ class _BackgroundPainter extends CustomPainter {
       path.lineTo(x + 50, h);
       path.lineTo(x - 50, h);
       path.close();
-
       canvas.drawPath(
         path,
         Paint()
@@ -343,40 +442,25 @@ class _BackgroundPainter extends CustomPainter {
           ).createShader(Rect.fromLTWH(x - 100, 0, 200, h)),
       );
     }
-
     final particles = _getStars(40, size);
     for (final p in particles) {
       final drift = (progress * p.speed + p.phase) % 1.0;
       final y = ((p.y - drift) % 1.0 + 1) % 1.0;
       final color = colors[(p.phase * 1000).toInt() % colors.length];
       final opacity = (0.3 + 0.7 * (math.sin(progress * 3 * math.pi + p.phase * 2 * math.pi)).abs()) * config.intensity;
-
-      canvas.drawCircle(
-        Offset(p.x * w, y * h),
-        p.size * 1.5,
-        Paint()..color = color.withOpacity(opacity * 0.3),
-      );
-      canvas.drawCircle(
-        Offset(p.x * w, y * h),
-        p.size * 0.8,
-        Paint()..color = color.withOpacity(opacity * 0.7),
-      );
+      canvas.drawCircle(Offset(p.x * w, y * h), p.size * 1.5, Paint()..color = color.withOpacity(opacity * 0.3));
+      canvas.drawCircle(Offset(p.x * w, y * h), p.size * 0.8, Paint()..color = color.withOpacity(opacity * 0.7));
     }
   }
 
   void _drawRotatingGradient(Canvas canvas, Size size) {
     final colors = config.particleColors;
     if (colors.isEmpty) return;
-
     final angle = progress * 2 * math.pi;
     final center = Offset(size.width / 2, size.height / 2);
-
     final paint = Paint()
       ..shader = SweepGradient(
-        center: Alignment(
-          center.dx / size.width * 2 - 1,
-          center.dy / size.height * 2 - 1,
-        ),
+        center: Alignment(center.dx / size.width * 2 - 1, center.dy / size.height * 2 - 1),
         startAngle: angle,
         endAngle: angle + 2 * math.pi,
         colors: colors.map((c) => c.withOpacity(0.12 * config.intensity)).toList(),
@@ -388,58 +472,37 @@ class _BackgroundPainter extends CustomPainter {
     final w = size.width;
     final h = size.height;
     final colors = config.particleColors;
-
     for (int i = 0; i < 8; i++) {
       final phase = i * math.pi / 4;
       final x = (0.15 + 0.7 * ((i / 8.0 + progress * 0.3) % 1.0)) * w;
       final y = (0.2 + 0.6 * math.sin(progress * 2 * math.pi + phase)) * h;
       final color = colors[i % colors.length];
-      final radius = 40 + 30 * math.sin(progress * 2 * math.pi + phase * 2);
-
+      final radius = 40 + 30 * (math.sin(progress * 2 * math.pi + phase * 2)).abs();
       canvas.drawCircle(
-        Offset(x, y),
-        radius,
+        Offset(x, y), radius,
         Paint()
-          ..shader = RadialGradient(
-            colors: [
-              color.withOpacity(0.2 * config.intensity),
-              color.withOpacity(0.0),
-            ],
-          ).createShader(Rect.fromCircle(center: Offset(x, y), radius: radius)),
+          ..shader = RadialGradient(colors: [
+            color.withOpacity(0.2 * config.intensity),
+            color.withOpacity(0.0),
+          ]).createShader(Rect.fromCircle(center: Offset(x, y), radius: radius)),
       );
     }
   }
 
   List<_Star> _getStars(int count, Size size) {
     final rng = math.Random(42);
-    return List.generate(count, (_) {
-      return _Star(
-        x: rng.nextDouble(),
-        y: rng.nextDouble(),
-        size: 0.5 + rng.nextDouble() * 2.5,
-        phase: rng.nextDouble(),
-        speed: 0.3 + rng.nextDouble() * 0.7,
-      );
-    });
+    return List.generate(count, (_) => _Star(
+      x: rng.nextDouble(), y: rng.nextDouble(),
+      size: 0.5 + rng.nextDouble() * 2.5,
+      phase: rng.nextDouble(), speed: 0.3 + rng.nextDouble() * 0.7,
+    ));
   }
 
   @override
-  bool shouldRepaint(covariant _BackgroundPainter old) =>
-      old.progress != progress;
+  bool shouldRepaint(covariant _AmbientPainter old) => old.progress != progress;
 }
 
 class _Star {
-  final double x;
-  final double y;
-  final double size;
-  final double phase;
-  final double speed;
-
-  _Star({
-    required this.x,
-    required this.y,
-    required this.size,
-    required this.phase,
-    required this.speed,
-  });
+  final double x, y, size, phase, speed;
+  _Star({required this.x, required this.y, required this.size, required this.phase, required this.speed});
 }
