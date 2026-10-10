@@ -4,13 +4,11 @@ import '../effects/emitters.dart';
 class FireworkOverlay extends StatefulWidget {
   final List<Color> colors;
   final Widget child;
-  final VoidCallback? onFirework;
 
   const FireworkOverlay({
     super.key,
     required this.colors,
     required this.child,
-    this.onFirework,
   });
 
   @override
@@ -28,7 +26,11 @@ class FireworkOverlayState extends State<FireworkOverlay>
     _controller = AnimationController(
       duration: const Duration(seconds: 4),
       vsync: this,
-    );
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() => _emitter = null);
+        }
+      });
   }
 
   @override
@@ -38,9 +40,12 @@ class FireworkOverlayState extends State<FireworkOverlay>
   }
 
   void triggerFirework(Offset position) {
+    final renderObject = context.findRenderObject();
+    if (renderObject is! RenderBox) return;
+    final localPosition = renderObject.globalToLocal(position);
     _emitter = FireworkEmitter(
-      x: position.dx,
-      y: position.dy,
+      x: localPosition.dx,
+      y: localPosition.dy,
       colors: widget.colors,
       burstInterval: 999,
       maxParticles: 300,
@@ -56,17 +61,18 @@ class FireworkOverlayState extends State<FireworkOverlay>
         widget.child,
         if (_emitter != null)
           Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, _) {
-                return CustomPaint(
-                  painter: _FireworkPainter(
-                    emitter: _emitter!,
-                    progress: _controller.value,
-                  ),
-                  child: Container(),
-                );
-              },
+            child: IgnorePointer(
+              child: AnimatedBuilder(
+                animation: _controller,
+                builder: (context, _) {
+                  return CustomPaint(
+                    painter: _FireworkPainter(
+                      emitter: _emitter!,
+                      progress: _controller.value,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
       ],

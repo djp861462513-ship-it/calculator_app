@@ -19,6 +19,11 @@ class Emitter {
 
   void emit(int count, Size size) {}
 
+  void trimToLimit() {
+    if (particles.length <= maxParticles) return;
+    particles.removeRange(0, particles.length - maxParticles);
+  }
+
   void update(double dt, Size size) {
     for (int i = particles.length - 1; i >= 0; i--) {
       particles[i].update(dt);
@@ -35,6 +40,7 @@ class Emitter {
       final count = accumulated.toInt();
       accumulated -= count;
       emit(count, size);
+      trimToLimit();
     }
   }
 
@@ -76,6 +82,7 @@ class FireworkEmitter extends Emitter {
   }
 
   void burst() {
+    nextBurst = burstInterval;
     final color = colors[rng.nextInt(colors.length)];
     final count = 40 + rng.nextInt(30);
 
@@ -316,7 +323,7 @@ class StreamEmitter extends Emitter {
 class ConstellationEmitter extends Emitter {
   final List<Color> colors;
   final math.Random rng = math.Random();
-  late List<ConstellationNode> nodes;
+  List<ConstellationNode> nodes = [];
 
   ConstellationEmitter({
     required List<Color> colors,

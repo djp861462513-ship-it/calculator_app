@@ -186,10 +186,6 @@ class _ParticlePainter extends CustomPainter {
       return;
     }
 
-    if (emitter is DiamondSparkleEmitter) {
-      (emitter as DiamondSparkleEmitter).update(1 / 60, size);
-    }
-
     emitter.update(1 / 60, size);
     emitter.draw(canvas, _paint, blendMode: config.blendMode);
   }

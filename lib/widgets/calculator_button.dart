@@ -173,6 +173,7 @@ class _AnimatedButtonState extends State<_AnimatedButton>
   late AnimationController _controller;
   late Animation<double> _scaleAnim;
   late Animation<double> _glowAnim;
+  final GlobalKey<_ButtonBurstState> _burstKey = GlobalKey();
 
   @override
   void initState() {
@@ -205,6 +206,7 @@ class _AnimatedButtonState extends State<_AnimatedButton>
       onTapDown: (_) => _controller.forward(),
       onTapUp: (_) {
         _controller.reverse();
+        _burstKey.currentState?.trigger();
         widget.onTap?.call();
       },
       onTapCancel: () => _controller.reverse(),
@@ -237,11 +239,21 @@ class _AnimatedButtonState extends State<_AnimatedButton>
                 ),
                 if (hasDiamondBorder)
                   Positioned.fill(
-                    child: _DiamondBorderEffect(
+                    child: IgnorePointer(
+                      child: _DiamondBorderEffect(
                       color: skin.primaryColor,
                       radius: widget.radius,
+                      ),
                     ),
                   ),
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: _ButtonBurst(
+                      key: _burstKey,
+                      color: skin.primaryColor,
+                    ),
+                  ),
+                ),
               ],
             ),
           );
@@ -250,6 +262,84 @@ class _AnimatedButtonState extends State<_AnimatedButton>
       ),
     );
   }
+}
+
+class _ButtonBurst extends StatefulWidget {
+  final Color color;
+
+  const _ButtonBurst({super.key, required this.color});
+
+  @override
+  State<_ButtonBurst> createState() => _ButtonBurstState();
+}
+
+class _ButtonBurstState extends State<_ButtonBurst>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    duration: const Duration(milliseconds: 520),
+    vsync: this,
+  );
+
+  void trigger() => _controller.forward(from: 0);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, _) => CustomPaint(
+        painter: _ButtonBurstPainter(
+          progress: _controller.value,
+          color: widget.color,
+        ),
+      ),
+    );
+  }
+}
+
+class _ButtonBurstPainter extends CustomPainter {
+  final double progress;
+  final Color color;
+
+  _ButtonBurstPainter({required this.progress, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress == 0 || progress >= 1) return;
+    final center = Offset(size.width / 2, size.height / 2);
+    final paint = Paint()..blendMode = BlendMode.plus;
+    final count = 14;
+    final distance = Curves.easeOut.transform(progress) * size.shortestSide * 0.8;
+    final fade = 1 - Curves.easeIn.transform(progress);
+
+    for (var i = 0; i < count; i++) {
+      final angle = i * 2 * math.pi / count;
+      final point = center + Offset(math.cos(angle), math.sin(angle)) * distance;
+      final particleSize = 2.5 * (1 - progress * 0.45);
+      paint.color = color.withOpacity(fade);
+      canvas.drawCircle(point, particleSize, paint);
+      paint.color = color.withOpacity(fade * 0.28);
+      canvas.drawCircle(point, particleSize * 3.5, paint);
+    }
+
+    paint.color = color.withOpacity(fade * 0.7);
+    paint.strokeWidth = 1.5;
+    for (var i = 0; i < 4; i++) {
+      final angle = i * math.pi / 2 + math.pi / 4;
+      final length = distance * 0.7;
+      final end = center + Offset(math.cos(angle), math.sin(angle)) * length;
+      canvas.drawLine(center, end, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _ButtonBurstPainter old) =>
+      old.progress != progress || old.color != color;
 }
 
 class _DiamondBorderEffect extends StatefulWidget {
